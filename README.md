@@ -1,143 +1,128 @@
-# PhishGuard AI — Multi-Modal Phishing & Deepfake Detection
+# PhishGuard AI — Multimodal Phishing & Deepfake Detection
 
-> **What's new in V5**
-> 1. **Layout bug fixed** — the page no longer grows wider on each analysis
->    (grid/flex children now have `min-width:0` and all media is bounded to
->    `max-width:100%`).
-> 2. **Fully responsive** — adapts to phone, tablet, and laptop via CSS
->    breakpoints (the sidebar stacks under the content on small screens).
-> 3. **Light / dark mode** — a toggle in the navbar, remembered across visits
->    (stored in `localStorage`).
-> 4. **User login with JWT** — lightweight auth (PyJWT + a JSON user store,
->    passwords salted & hashed with the standard library). No Firebase, no
->    database. See `backend/auth.py`. New deps: `pyjwt` (added to
->    `requirements.txt`).
-> 5. **History logs** — every analysis is saved to the logged-in user's
->    account and viewable from the 🕑 button in the navbar.
->
-> User accounts and history are stored as JSON files under
-> `backend/user_data/` (created automatically on first run; safe to delete to
-> reset). Everything else from V3 is unchanged.
+PhishGuard AI is a final-year B.Tech project that explores AI-assisted detection of suspicious and potentially manipulated content across multiple modalities: text, URLs, voice, images, and video. It also includes cross-modal fusion, explainability features, adversarial testing, and user-specific analysis history.
 
----
+## Live Demo
 
-Final-year B.Tech project. A cross-modal AI system that detects phishing and
-deepfake content across **text, voice, image, and video**, with three flagship
-capabilities added on top of the base detectors:
+**Deployed application:** http://129.154.245.149/
 
-1. **Cross-modal fusion** — combines multiple channels of one incident into a
-   single unified verdict (the true multi-modal signal).
-2. **Explainable AI** — exact per-word attribution for text, Grad-CAM heat-maps
-   for images, acoustic feature attribution for voice.
-3. **Adversarial robustness** — evasion attacks + a de-obfuscation defense.
+> **Note:** The demo currently uses HTTP, not HTTPS. Do not enter real passwords, personal information, or other sensitive data into the deployed demo. See [Real-Time Mode setup](#real-time-mode-microphone-and-screen-sharing) below if microphone or screen-sharing features are unavailable in Chrome.
 
----
+## Features
 
-## Quick start (extract → install → run)
+- **Text and URL analysis** for phishing-related signals.
+- **Voice analysis** for suspicious or potentially synthetic audio.
+- **Image and video analysis** for visual phishing and deepfake-related signals.
+- **Fusion Scan** to combine multiple modalities associated with the same incident into a unified assessment.
+- **Explainability tools** to help inspect why some content was flagged.
+- **Adversarial testing** to demonstrate obfuscation and defensive analysis.
+- **User accounts and analysis history** in the web application.
 
-```bash
-# 1. Enter the project
-cd phishguard-ai/backend
+These features support research and demonstrations; results should not be treated as a guarantee that content is safe or malicious.
 
-# 2. (recommended) create a virtual environment
-python -m venv venv
-# Windows:  venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
+## Run Locally in Visual Studio Code (Windows)
 
-# 3. install dependencies
+### Prerequisites
+
+- Python installed on Windows.
+- Visual Studio Code.
+- The project files downloaded or cloned to your computer.
+
+### Installation and startup
+
+Open the project’s root folder in VS Code. The root folder is the one containing `README.md` and the `backend` folder. Open **Terminal → New Terminal**, then run these commands one at a time:
+
+```powershell
+cd backend
+py -m venv venv
+.\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-
-# 4. run the app
 python app.py
 ```
 
-Then open **http://localhost:5000** in your browser.
+When the server starts, open this address in your browser:
 
-> First run downloads nothing except the Python packages. PyTorch is the
-> largest (~200 MB). The trained models are already bundled in `model/` and
-> `models/`, so detection works immediately.
+**http://127.0.0.1:5000/**
 
----
+Keep the VS Code terminal open while using the application. To stop the server, focus the terminal and press `Ctrl+C`.
 
-## Using the dashboard
+### If PowerShell blocks environment activation
 
-The UI has three modes (segmented control at the top):
+If PowerShell reports that script execution is disabled, run the following command in that terminal, then try activating the environment again:
 
-- **Single Scan** — analyze one input (Text / Voice / Image / Video). Text and
-  Image show an explainability panel (why it was flagged / Grad-CAM heat-map).
-- **Fusion Scan** — provide several channels of the *same* incident (e.g. an SMS
-  + a screenshot + a call recording) and get one unified verdict. When ≥2
-  channels agree, the threat escalates to **Critical** and the coordinated
-  campaign is named.
-- **Adversarial Lab** — obfuscate a phishing message to evade the filter, then
-  watch the de-obfuscation defense catch it again.
-
----
-
-## Run the presentation demo (no browser needed)
-
-```bash
-cd backend
-python demo_novelty.py
-```
-Prints the fusion, explainability, and adversarial results in the terminal —
-handy as a backup during the viva.
-
-## Rigorous evaluation
-```bash
-cd backend
-python evaluate_rigorous.py
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\venv\Scripts\Activate.ps1
 ```
 
----
+This policy change applies only to the current PowerShell process. If setup still fails, check that Python is installed and that you are running the commands from the project root as described above.
 
-## Project structure
+## Real-Time Mode: Microphone and Screen Sharing
 
-```
-phishguard-ai/
-├── README.md                  ← you are here
+The deployed demo is served over HTTP. Chrome restricts microphone access and screen-capture APIs to secure contexts in many situations. The steps below are a **testing workaround**, not a recommended permanent production configuration.
+
+1. Open **Google Chrome**.
+2. In the address bar, open:
+
+   ```text
+   chrome://flags/#unsafely-treat-insecure-origin-as-secure
+   ```
+
+3. Find **Insecure origins treated as secure**.
+4. Enter the following origin in its text field:
+
+   ```text
+   http://129.154.245.149
+   ```
+
+   Enter only the origin—do not add a page path or trailing route.
+
+5. Change the dropdown for this flag to **Enabled**.
+6. Click **Relaunch** to restart Chrome.
+7. Reopen the deployed app: http://129.154.245.149/
+8. When prompted, allow microphone access if you intend to use voice features.
+9. For screen sharing, start the relevant Real-Time Mode action and choose the screen, window, or browser tab in Chrome's screen-sharing picker. Chrome requires the user to choose what to share; this permission is requested when screen sharing starts.
+
+If Chrome does not show a permission prompt, check the site's permissions using the site controls beside the address bar. Availability can vary with Chrome versions and browser/device policies.
+
+### Security warning
+
+Treating an HTTP origin as secure does **not** encrypt the connection. Use this workaround only for a trusted demonstration environment, and do not submit confidential information. When finished, return to `chrome://flags/#unsafely-treat-insecure-origin-as-secure`, change the setting back to **Default**, and relaunch Chrome.
+
+**Recommended long-term fix:** serve the application over HTTPS with a valid TLS certificate and configure the required browser permissions correctly.
+
+## Project Structure
+
+```text
+.
+├── README.md
 └── backend/
-    ├── app.py                 ← Flask server (novelty routes auto-registered)
-    ├── templates/index.html   ← the dashboard UI (Single / Fusion / Adversarial)
-    │
-    ├── fusion_engine.py        ← ★ cross-modal fusion
-    ├── explainability.py       ← ★ text attribution + Grad-CAM + voice attribution
-    ├── adversarial.py          ← ★ evasion attacks + defense
-    ├── routes_advanced.py      ← Flask endpoints for the above
-    ├── evaluate_rigorous.py    ← honest metrics (confusion matrix, calibration)
-    ├── demo_novelty.py         ← one-command demo of all three
-    │
-    ├── text_analyzer.py        ← text detector (TF-IDF + Logistic Regression)
-    ├── voice_detector.py       ← voice detector (acoustic heuristics)
-    ├── image_detector.py       ← image detector (MobileNetV2, PyTorch)
-    ├── video_detector.py       ← video detector (frame voting)
-    │
-    ├── train_model.py          ← train text model
-    ├── train_image_model.py    ← train image model
-    ├── train_voice_model.py    ← ★ train a REAL supervised AI-voice detector
-    ├── train_multilingual.py   ← ★ fine-tune MuRIL for Hinglish phishing
-    │
-    ├── model/  models/         ← bundled trained models (ready to use)
-    ├── data/                   ← spam.csv + small test audio/video
-    ├── static/                 ← Grad-CAM overlays are written here at runtime
-    ├── requirements.txt
-    └── NOVELTY_UPGRADES.md      ← full write-up: methods, report text, viva Q&A
+    ├── app.py                 # Flask application entry point
+    ├── templates/             # Web interface
+    ├── static/                # Static and generated interface assets
+    ├── data/                  # Test data and datasets
+    ├── model/                 # Model artefacts
+    ├── models/                # Additional model artefacts
+    ├── requirements.txt       # Python dependencies
+    ├── fusion_engine.py       # Cross-modal fusion logic
+    ├── explainability.py      # Explainability utilities
+    ├── adversarial.py         # Adversarial testing and defenses
+    ├── routes_advanced.py     # Additional analysis routes
+    ├── text_analyzer.py       # Text analysis
+    ├── url_analyzer.py        # URL analysis
+    ├── voice_detector.py      # Voice analysis
+    ├── image_detector.py      # Image analysis
+    └── video_detector.py      # Video analysis
 ```
 
-★ = new work added on top of the base project.
+## Important Notes
 
----
+- Keep `.env` files, credentials, private user data, and local virtual environments out of version control.
+- The `venv/` directory is created locally during setup and should not be uploaded to GitHub.
+- Detection outputs are probabilistic and may be incorrect. Verify important decisions independently.
+- This project is intended for academic, research, and demonstration purposes.
 
-## Notes
+## Team / Academic Project
 
-- **Training images not bundled.** The 215 MB screenshot training set
-  (`data/images/`) was removed to keep the download small. The image model is
-  already trained (`model/image_phishing_model.pth`), so image/video detection
-  works without it. Re-download from the Kaggle "Phishing and Legit Website
-  Screenshots" dataset only if you want to retrain.
-- **API endpoints:** `/detect-text`, `/detect-voice`, `/detect-image`,
-  `/detect-video`, `/detect-fusion`, `/explain-text`, `/explain-image`,
-  `/explain-voice`, `/adversarial-test`.
-- See **`backend/NOVELTY_UPGRADES.md`** for the methodology write-up,
-  report-ready sections, results tables, and likely viva questions with answers.
+**Project:** PhishGuard AI  
+**Type:** Final-year B.Tech project
